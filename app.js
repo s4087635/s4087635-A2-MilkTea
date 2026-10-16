@@ -44,7 +44,7 @@ function displayProducts(productList) {
 
         card.innerHTML = `
             <img
-                src="${product.image}"
+                src="images/${product.image}"
                 alt="${product.name}"
             >
 
@@ -232,29 +232,23 @@ document
     .getElementById("orderForm")
     .addEventListener(
         "submit",
-        function (event) {
+        async function (event) {
 
             event.preventDefault();
 
             const name =
                 document
-                    .getElementById(
-                        "customerName"
-                    )
+                    .getElementById("customerName")
                     .value.trim();
 
             const email =
                 document
-                    .getElementById(
-                        "customerEmail"
-                    )
+                    .getElementById("customerEmail")
                     .value.trim();
 
             const message =
                 document
-                    .getElementById(
-                        "orderMessage"
-                    );
+                    .getElementById("orderMessage");
 
             if (cart.length === 0) {
 
@@ -281,44 +275,85 @@ document
                 customerEmail: email,
 
                 items: cart.map(item => ({
-                    productId:
-                        item.productId,
-
-                    productName:
-                        item.name,
-
-                    quantity:
-                        item.quantity,
-
-                    price:
-                        item.price
-                })),
-
-                totalAmount:
-                    Number(
-                        document
-                            .getElementById(
-                                "totalPrice"
-                            )
-                            .textContent
-                    )
+                    productId: item.productId,
+                    quantity: item.quantity
+                }))
             };
 
-            console.log(
-                "Order submitted:",
-                order
-            );
+            try {
 
-            message.textContent =
-                "Order request created successfully.";
+                message.textContent =
+                    "Processing your order...";
 
-            message.style.color = "green";
+                message.style.color = "black";
 
-            /*
-              Task F API gateway
-            */
+                const response = await fetch(
+                    `${API_BASE_URL}/orders`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify(order)
+                    }
+                );
+
+                const result =
+                    await response.json();
+
+                console.log(
+                    "Order response:",
+                    result
+                );
+
+                if (
+                    response.ok &&
+                    result.success
+                ) {
+
+                    message.textContent =
+                        "Your order was successfully processed!";
+
+                    message.style.color =
+                        "green";
+
+                    cart = [];
+
+                    displayCart();
+
+                    document
+                        .getElementById(
+                            "orderForm"
+                        )
+                        .reset();
+
+                } else {
+
+                    message.textContent =
+                        result.message ||
+                        "Your order could not be processed.";
+
+                    message.style.color =
+                        "red";
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Order error:",
+                    error
+                );
+
+                message.textContent =
+                    "There was a problem submitting your order.";
+
+                message.style.color =
+                    "red";
+            }
         }
     );
-
 
 loadProducts();
