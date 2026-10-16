@@ -1,71 +1,27 @@
-const products = [
-    {
-        productId: "P001",
-        name: "Pearl Milk Tea",
-        category: "Milk Tea",
-        description: "Milk tea with chewy tapioca pearls",
-        price: 7.00,
-        image: "images/pearl-milk-tea.jpg"
-    },
-    {
-        productId: "P002",
-        name: "Mango Pomelo Sago",
-        category: "Fruit Tea",
-        description: "Mango, pomelo and sago drink",
-        price: 8.00,
-        image: "images/mango-pomelo-sago.jpg"
-    },
-    {
-        productId: "P003",
-        name: "Matcha Milk Tea",
-        category: "Matcha",
-        description: "Matcha-based milk tea",
-        price: 7.50,
-        image: "images/matcha-latte.jpg"
-    },
-    {
-        productId: "P004",
-        name: "Roasted Milk Tea",
-        category: "Specialty",
-        description: "Roasted milk tea with a rich flavour",
-        price: 7.00,
-        image: "images/roasted-milk-tea.jpg"
-    },
-    {
-        productId: "P005",
-        name: "Lemon Fruit Tea",
-        category: "Fruit Tea",
-        description: "Refreshing lemon fruit tea",
-        price: 6.50,
-        image: "images/lemon-fruit-tea.jpg"
-    },
-    {
-        productId: "P006",
-        name: "Taro Ball Milk Tea",
-        category: "Milk Tea",
-        description: "Taro milk tea with chewy taro balls",
-        price: 7.50,
-        image: "images/taro-ball-milk-tea.jpg"
-    },
-    {
-        productId: "P007",
-        name: "Jasmine Green Milk Tea",
-        category: "Milk Tea",
-        description: "Jasmine green tea with milk",
-        price: 7.00,
-        image: "images/jasmine-green-milk.jpg"
-    },
-    {
-        productId: "P008",
-        name: "Signature Milk Tea",
-        category: "Milk Tea",
-        description: "Classic creamy milk tea",
-        price: 6.50,
-        image: "images/signature-milk-tea.jpg"
-    }
-];
+const API_BASE_URL = "https://j2s64fo4qj.execute-api.us-east-1.amazonaws.com/prod";
 
+let products = [];
 let cart = [];
+
+async function loadProducts() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/products`);
+
+        if (!response.ok) {
+            throw new Error("Could not load products");
+        }
+
+        products = await response.json();
+
+        displayProducts(products);
+
+    } catch (error) {
+        console.error("Error loading products:", error);
+
+        document.getElementById("productGrid").innerHTML =
+            "<p>Unable to load products. Please try again later.</p>";
+    }
+}
 
 const productGrid =
     document.getElementById("productGrid");
@@ -238,9 +194,9 @@ function displayCart() {
 
             <span>
                 $${(
-                    item.price *
-                    item.quantity
-                ).toFixed(2)}
+                item.price *
+                item.quantity
+            ).toFixed(2)}
             </span>
         `;
 
@@ -276,7 +232,7 @@ document
     .getElementById("orderForm")
     .addEventListener(
         "submit",
-        function(event) {
+        function (event) {
 
             event.preventDefault();
 
@@ -365,4 +321,4 @@ document
     );
 
 
-displayProducts(products);
+loadProducts();
